@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Worship Jeopardy</title>
+    <meta
+      name="description"
+      content="A Bible-based Jeopardy-style game for family worship: teams, timers, daily-use question banks, and game-show sound and effects."
+    />
+    <meta name="theme-color" content="#08122e" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2308122e'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23ffd84d'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/extra.css" />
+  </head>
+  <body>
+    <div id="intro" role="status" aria-live="polite">
+      <canvas id="introCv"></canvas>
+      <div class="intro-stage">
+        <div class="intro-board" id="introBoard" aria-hidden="true"></div>
+        <div class="intro-kicker">FAMILY WORSHIP</div>
+        <h1 class="intro-logo" id="introLogo" aria-label="Jeopardy"></h1>
+        <div class="intro-fact" id="introFact"></div>
+        <div class="intro-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="intro-fill" id="introFill"></div>
+        </div>
+        <div class="intro-meta"><span id="introStatus">Loading…</span><span id="introPct">0%</span></div>
+        <button class="intro-start" id="introStart" type="button">PRESS START</button>
+      </div>
+      <button class="intro-skip" id="introSkip" type="button">Skip</button>
+      <div class="intro-curtain l"></div>
+      <div class="intro-curtain r"></div>
+    </div>
+    <div id="confetti"></div>
+
+    <section id="home" class="screen active">
+      <div class="home-card">
+        <div class="cross" style="font-size: 64px; animation: logoFloat 1.3s ease-in-out infinite">✦ ✦ ✦</div>
+        <div
+          style="
+            font-size: 18px;
+            letter-spacing: 6px;
+            color: var(--cyan);
+            font-weight: 900;
+            margin-bottom: 8px;
+          "
+        >
+          ✨ PLAY • LEARN • GROW ✨
+        </div>
+        <h1 id="title" class="hero-gradient">Family Worship Jeopardy</h1>
+        <div class="subtitle" id="subtitle">A Bible-based game for family worship</div>
+
+        <div class="feature-pills">
+          <span class="pill c">🔊 Game Sounds</span>
+          <span class="pill d">🎉 Confetti</span>
+        </div>
+        <button class="primary large" id="startBtn">Start Game</button>
+        <button class="secondary" id="settingsHomeBtn" style="margin-left: 8px">⚙ Settings</button>
+        <div><button class="secondary" id="resumeBtn" type="button">▶ Resume Saved Game</button></div>
+      </div>
+    </section>
+
+    <section id="setup" class="screen">
+      <div class="setup-card">
+        <h2 id="setupTitle">Set Up Jeopardy</h2>
+        <p id="setupDesc">The host decides the teams, topics, and every question on the board.</p>
+
+        <div class="setup-tabs" role="tablist" aria-label="Jeopardy setup sections">
+          <button class="setup-tab active" id="teamsTab" type="button">Teams & Game</button>
+          <button class="setup-tab" id="bankTab" type="button">Topics & Questions</button>
+          <button class="setup-tab" id="columnsTab" type="button">Columns</button>
+        </div>
+
+        <div class="setup-panel" id="teamsPanel">
+          <div class="setup-options">
+            <div class="setup-option">
+              <label>Question Timer</label
+              ><select id="timerSetting">
+                <option value="15">15 seconds</option>
+                <option value="30" selected>30 seconds</option>
+                <option value="45">45 seconds</option>
+                <option value="60">60 seconds</option>
+              </select>
+            </div>
+            <div class="setup-option">
+              <label>Negative Points</label
+              ><select id="negativeSetting">
+                <option value="on" selected>ON</option>
+                <option value="off">OFF</option>
+              </select>
+            </div>
+            <div class="setup-option">
+              <label>Version</label
+              ><select id="versionSetting">
+                <option value="multiple" selected>Multiple Choice</option>
+                <option value="identification">Identification</option>
+              </select>
+            </div>
+          </div>
+          <div class="team-grid" id="teamInputs"></div>
+          <div class="custom-note" id="setupNote" style="margin-top: 12px"></div>
+        </div>
+
+        <div class="setup-panel" id="bankPanel" style="display: none">
+          <div class="bank-toolbar">
+            <div class="bank-help">
+              <strong>Topics & Questions</strong
+              ><span id="bankHelpSub"
+                >Edit each topic directly. A board column needs 1 Easy, 2 Medium, and 2 Hard questions.</span
+              >
+            </div>
+            <div class="bank-toolbar-actions">
+              <button class="secondary" id="addTopicBtn" type="button">＋ Add Topic</button
+              ><button class="secondary" id="clearQuestionsBtn" type="button">Clear All</button>
+            </div>
+          </div>
+          <div class="bank-tools-extra">
+            <input
+              id="questionSearch"
+              class="bank-search"
+              type="search"
+              placeholder="Search topics or questions…"
+            />
+            <button class="secondary" id="collapseAllTopicsBtn" type="button">Collapse All</button>
+            <button class="secondary" id="expandAllTopicsBtn" type="button">Expand All</button>
+            <button class="secondary" id="clearEmptyTopicsBtn" type="button">Clear Empty Topics</button>
+            <button class="secondary" id="exportBankBtn" type="button">Export Bank</button>
+            <button class="secondary" id="importBankBtn" type="button">Import Bank</button>
+            <button class="secondary" id="loadSamplesBtn" type="button">Load Samples</button>
+            <input id="importBankFile" type="file" accept="application/json" hidden />
+          </div>
+          <div class="topic-manager-simple" id="topicManagerSimple"></div>
+          <div id="bankStats" class="custom-note" style="margin-top: 10px"></div>
+          <div class="custom-note" id="bankNote">
+            Each topic can hold up to 300 questions: 100 Easy, 100 Medium, and 100 Hard.
+          </div>
+        </div>
+
+        <div class="setup-panel" id="columnsPanel" style="display: none">
+          <div class="bank-help">
+            <strong id="columnsHelpTitle">Customize Columns</strong
+            ><span id="columnsHelpSub"
+              >Choose a fixed topic, or let that column pick a different random topic each new game.</span
+            >
+          </div>
+          <div class="setup-option" style="max-width: 240px; margin-top: 12px">
+            <label id="columnCountLabel">Number of Columns</label
+            ><select id="columnCountSetting"></select>
+          </div>
+          <div id="columnCustomizer"></div>
+          <div class="custom-note" id="columnsNote" style="margin-top: 12px"></div>
+        </div>
+
+        <div class="setup-actions">
+          <button class="primary large" id="beginBtn">Begin Game</button>
+          <button class="secondary" id="backHomeBtn">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="game" class="screen">
+      <div class="game-header">
+        <div>
+          <div class="brand">✦ FAMILY WORSHIP JEOPARDY</div>
+          <div class="turn" id="turnText"></div>
+        </div>
+        <div class="scores" id="scores"></div>
+      </div>
+
+      <div class="game-toolbar">
+        <button class="secondary" id="settingsGameBtn">⚙ Settings</button>
+        <button class="secondary" id="fullscreenBtn">⛶ Fullscreen</button>
+      </div>
+
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+
+      <div class="host-panel" id="hostPanel">
+        <button class="secondary" id="hostAddBtn">＋ Add 100</button>
+        <button class="secondary" id="hostSubBtn">− Subtract 100</button>
+        <button class="secondary" id="hostResetBtn">↺ Reset Scores</button>
+        <button class="secondary" id="hostSkipBtn">Skip Current</button>
+      </div>
+
+      <div class="bottom-bar">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button class="secondary" id="hostToggleBtn">🛡 Host Controls</button>
+          <button class="secondary" id="newGameBtn">New Game</button>
+        </div>
+        <div class="turn" id="controlsHint"></div>
+      </div>
+    </section>
+
+    <div class="modal" id="questionModal">
+      <div class="question-card" id="questionCard">
+        <div class="question-meta">
+          <div class="points" id="modalPoints"></div>
+          <div class="timer" id="timer"></div>
+        </div>
+        <div class="question-stage">
+          <div class="question-main">
+            <div class="question" id="questionText"></div>
+            <div class="choices" id="choices" aria-label="Answer choices"></div>
+          </div>
+          <aside class="hint-panel" id="hintPanel" aria-live="polite" aria-hidden="true">
+            <div class="hint-panel-label" id="hintPanelLabel">Hint</div>
+            <div class="hint-panel-text" id="hintPanelText"></div>
+          </aside>
+        </div>
+        <div class="buzz-banner" id="buzzBanner" aria-live="polite"></div>
+        <div class="answer" id="answerBox">
+          <div class="answer-label" id="answerLabel">Correct Answer</div>
+          <div class="answer-text" id="answerText"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="secondary" id="showAnswerBtn">Show Answer</button>
+          <button class="correct" id="correctBtn">✓ Correct</button>
+          <button class="wrong" id="wrongBtn">✗ Incorrect</button>
+          <button class="secondary" id="pauseBtn" type="button">⏸ Pause</button>
+          <button class="secondary" id="closeQuestionBtn">Back to Board</button>
+        </div>
+        <div class="hint" id="questionHint"></div>
+        <div class="key-help">Keys: 1–8 buzz in · A answer · C correct · X incorrect · P pause</div>
+      </div>
+    </div>
+
+    <div class="modal" id="teamPickerModal">
+      <div class="question-card" style="min-height: 0">
+        <div class="question-meta">
+          <div class="points" id="pickerTitle">Score</div>
+          <div class="turn" id="pickerPoints"></div>
+        </div>
+        <div
+          class="question"
+          id="whoAnsweredTitle"
+          style="min-height: 150px; font-size: clamp(24px, 4vw, 38px)"
+        >
+          Who answered?
+        </div>
+        <div class="picker-note" id="pickerNote">Choose the team.</div>
+        <div class="team-picker" id="teamPicker"></div>
+        <div class="modal-actions">
+          <button class="primary" id="confirmTeamBtn">Apply Score</button>
+          <button class="secondary" id="cancelTeamBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="resultsModal">
+      <div class="winner-card">
+        <button class="results-close" id="resultsCloseBtn" type="button" aria-label="Close">×</button>
+        <div class="winner-icon">🏆</div>
+        <h2 id="resultsTitle">Game Over!</h2>
+        <div class="winner-name" id="winnerName"></div>
+        <div class="podium" id="podium"></div>
+        <div class="final-scores" id="finalScores"></div>
+        <div class="game-stats" id="gameStats"></div>
+        <div class="history-box">
+          <strong id="historyHeading">Recent Games</strong>
+          <div id="historyList"></div>
+        </div>
+        <button class="primary large" id="playAgainBtn">Play Again</button>
+        <button class="secondary" id="resultsHomeBtn" style="margin-top: 8px">Home</button>
+      </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+      <div class="settings-card">
+        <h2>⚙ Game Settings</h2>
+        <div class="setting-row">
+          <label id="languageSettingLabel">Language</label>
+          <select id="languageSetting" class="settings-select" aria-label="Choose language">
+            <option value="en">🇺🇸 English</option>
+            <option value="tl">🇵🇭 Tagalog</option>
+            <option value="es">🇪🇸 Español</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label id="soundLabel">Sound effects</label
+          ><button class="toggle on" id="soundToggle" aria-label="Toggle sounds"></button>
+        </div>
+        <div class="setting-row">
+          <label id="animationsLabel">Animations</label
+          ><button class="toggle on" id="animationToggle" aria-label="Toggle animations"></button>
+        </div>
+        <div class="setting-row">
+          <label id="negativeLabel">Negative points</label
+          ><button class="toggle on" id="negativeToggle" aria-label="Toggle negative points"></button>
+        </div>
+        <div class="setting-row">
+          <label id="musicLabel">Background music</label
+          ><button class="toggle" id="settingsMusicToggle" aria-label="Toggle background music"></button>
+        </div>
+        <div class="setting-row">
+          <label id="confettiLabel">Celebration confetti</label
+          ><button class="toggle on" id="confettiToggle" aria-label="Toggle confetti"></button>
+        </div>
+        <div class="setting-row">
+          <label id="autoTimerLabel">Auto-start timer</label
+          ><button class="toggle on" id="autoTimerToggle" aria-label="Toggle auto-start timer"></button>
+        </div>
+        <div class="setting-row">
+          <label id="boardEffectsLabel">Board effects</label
+          ><button class="toggle on" id="boardEffectsToggle" aria-label="Toggle board effects"></button>
+        </div>
+        <div class="setting-row">
+          <label id="timerVisibleLabel">Show question timer</label
+          ><button
+            class="toggle on"
+            id="timerVisibleToggle"
+            aria-label="Toggle question timer visibility"
+          ></button>
+        </div>
+        <div class="setting-row">
+          <label id="themeLabel">Board theme</label
+          ><select id="themeSetting" class="theme-select">
+            <option value="neon">Neon Game Show</option>
+            <option value="classic">Classic Blue & Gold</option>
+            <option value="midnight">Midnight</option>
+            <option value="sunrise">Sunrise</option>
+            <option value="forest">Forest</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label id="effectsVolumeLabel">Effects volume</label>
+          <div class="range-wrap">
+            <input
+              id="effectsVolume"
+              class="settings-range"
+              type="range"
+              min="0"
+              max="100"
+              value="100"
+            /><span id="effectsVolumeValue" class="range-value">100%</span>
+          </div>
+        </div>
+        <div class="setting-row">
+          <label id="musicVolumeLabel">Music volume</label>
+          <div class="range-wrap">
+            <input id="musicVolume" class="settings-range" type="range" min="0" max="100" value="10" /><span
+              id="musicVolumeValue"
+              class="range-value"
+              >10%</span
+            >
+          </div>
+        </div>
+        <div class="setting-row">
+          <label id="celebrationVolumeLabel">Celebration volume</label>
+          <div class="range-wrap">
+            <input
+              id="celebrationVolume"
+              class="settings-range"
+              type="range"
+              min="0"
+              max="100"
+              value="70"
+            /><span id="celebrationVolumeValue" class="range-value">70%</span>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 18px">
+          <button class="secondary" id="resetSettingsBtn">↺ Reset to Default</button>
+          <button class="primary" id="closeSettingsBtn">Done</button>
+        </div>
+      </div>
+    </div>
+    <div class="audio-dock">
+      <button id="dockMusic" type="button" aria-label="Toggle music" title="Music (M)">♪</button
+      ><button id="dockSfx" type="button" aria-label="Toggle sound effects" title="Sound effects">🔊</button>
+    </div>
+    <script src="js/audio.js"></script>
+    <script src="js/fx.js"></script>
+    <script src="js/locales.js"></script>
+    <script src="js/samples.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/intro.js"></script>
+    <script src="js/browser-apis.js"></script>
+  </body>
+</html>

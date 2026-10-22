@@ -1,0 +1,11 @@
+{
+  "name": "Family Worship Jeopardy",
+  "short_name": "FW Jeopardy",
+  "description": "A Bible-based Jeopardy-style game for family worship.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#08122e",
+  "theme_color": "#08122e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
